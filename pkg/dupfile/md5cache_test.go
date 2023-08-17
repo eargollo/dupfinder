@@ -38,8 +38,8 @@ func TestCache(t *testing.T) {
 		t.Fatalf("Could not create cache: %v", err)
 	}
 
-	aFile := &File{Path: "/my/file", Name: "file", Size: 100, md5: []byte("abc")}
-	bFile := &File{Path: "/my/other/file", Name: "file", Size: 200, md5: []byte("efg")}
+	aFile := &File{Path: "/my/file", Name: "file", Size: 100, Md5: []byte("abc")}
+	bFile := &File{Path: "/my/other/file", Name: "file", Size: 200, Md5: []byte("efg")}
 	c.Put(aFile)
 	c.Put(bFile)
 
@@ -49,12 +49,12 @@ func TestCache(t *testing.T) {
 	}
 
 	res = c.Get("/my/file", 100)
-	if !reflect.DeepEqual(res, aFile.md5) {
+	if !reflect.DeepEqual(res, aFile.Md5) {
 		t.Errorf("Get() = %v, want %v", res, aFile)
 	}
 
 	res = c.Get("/my/other/file", 200)
-	if !reflect.DeepEqual(res, bFile.md5) {
+	if !reflect.DeepEqual(res, bFile.Md5) {
 		t.Errorf("Get() = %v, want %v", res, bFile)
 	}
 

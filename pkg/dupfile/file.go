@@ -10,7 +10,7 @@ type File struct {
 	Path string
 	Name string
 	Size int64
-	md5  []byte
+	Md5  []byte
 }
 
 func (f File) AbsPath() string {
@@ -18,13 +18,13 @@ func (f File) AbsPath() string {
 }
 
 func (fl *File) MD5(cache *MD5Cache) ([]byte, error) {
-	if len(fl.md5) == 0 {
+	if len(fl.Md5) == 0 {
 		// Check if MD5 is in cache
 		if cache != nil {
 			md5 := cache.Get(fl.Path, fl.Size)
 			if md5 != nil {
-				fl.md5 = md5
-				return fl.md5, nil
+				fl.Md5 = md5
+				return fl.Md5, nil
 			}
 		}
 
@@ -39,12 +39,12 @@ func (fl *File) MD5(cache *MD5Cache) ([]byte, error) {
 		if _, err := io.Copy(h, f); err != nil {
 			return []byte{}, err
 		}
-		fl.md5 = h.Sum(nil)
+		fl.Md5 = h.Sum(nil)
 		//Add to cache
 		if cache != nil {
 			cache.Put(fl)
 		}
 	}
 
-	return fl.md5, nil
+	return fl.Md5, nil
 }

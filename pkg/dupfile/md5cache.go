@@ -50,7 +50,7 @@ func (c *MD5Cache) Get(path string, size int64) []byte {
 }
 
 func (c *MD5Cache) Put(file *File) {
-	record := CacheRecord{Size: file.Size, Hash: file.md5}
+	record := CacheRecord{Size: file.Size, Hash: file.Md5}
 	data, _ := json.Marshal(record)
 	_ = c.db.Put([]byte(file.Path), data)
 }
