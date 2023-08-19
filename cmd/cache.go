@@ -45,7 +45,7 @@ For example:
 			log.Fatalf("could not execute: %v", err)
 		}
 
-		db, err := dupfile.NewMD5Cache(cachePath)
+		db, err := dupfile.NewFileCache(cachePath)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -106,6 +106,6 @@ func init() {
 func logList(list []string) {
 	sort.StringSlice.Sort(list)
 	for _, key := range list {
-		log.Printf(key)
+		log.Print(key)
 	}
 }

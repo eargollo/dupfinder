@@ -14,11 +14,14 @@ func TestNew(t *testing.T) {
 		want    *Dedup
 		wantErr bool
 	}{
-		{name: "Defaults", opts: []DedupOption{}, want: &Dedup{paths: []string{"."}}, wantErr: false},
+		{name: "Defaults", opts: []DedupOption{}, want: &Dedup{paths: []string{"."},
+			fileBySize: map[int64][]*File{}, duplicates: map[string][]*File{},
+		}, wantErr: false},
 		{
-			name:    "With paths",
-			opts:    []DedupOption{WithPaths([]string{"/Home", "/Volumes"})},
-			want:    &Dedup{paths: []string{"/Home", "/Volumes"}},
+			name: "With paths",
+			opts: []DedupOption{WithPaths([]string{"/Home", "/Volumes"})},
+			want: &Dedup{paths: []string{"/Home", "/Volumes"}, fileBySize: map[int64][]*File{},
+				duplicates: map[string][]*File{}},
 			wantErr: false,
 		},
 		{
@@ -27,7 +30,8 @@ func TestNew(t *testing.T) {
 				WithPaths([]string{"/Home", "/Volumes"}),
 				WithCache(tempDir),
 			},
-			want:    &Dedup{paths: []string{"/Home", "/Volumes"}, cachePath: tempDir},
+			want: &Dedup{paths: []string{"/Home", "/Volumes"}, cachePath: tempDir,
+				fileBySize: map[int64][]*File{}, duplicates: map[string][]*File{}},
 			wantErr: false,
 		},
 	}
