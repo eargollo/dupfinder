@@ -8,7 +8,7 @@ import (
 	"github.com/akrylysov/pogreb"
 )
 
-type MD5Cache struct {
+type FileCache struct {
 	db *pogreb.DB
 }
 
@@ -17,21 +17,21 @@ type CacheRecord struct {
 	Hash []byte `json:"hash"`
 }
 
-func NewMD5Cache(file string) (*MD5Cache, error) {
+func NewFileCache(file string) (*FileCache, error) {
 	db, err := pogreb.Open(file, nil)
 	if err != nil {
 		// log.Fatal(err)
 		return nil, fmt.Errorf("error openning or creating cache database %s: %w", file, err)
 	}
 
-	return &MD5Cache{db: db}, nil
+	return &FileCache{db: db}, nil
 }
 
-func (c *MD5Cache) Close() {
+func (c *FileCache) Close() {
 	_ = c.db.Close()
 }
 
-func (c *MD5Cache) Get(path string, size int64) []byte {
+func (c *FileCache) Get(path string, size int64) []byte {
 	record := CacheRecord{}
 	data, _ := c.db.Get([]byte(path))
 	if data == nil {
@@ -49,13 +49,13 @@ func (c *MD5Cache) Get(path string, size int64) []byte {
 	return record.Hash
 }
 
-func (c *MD5Cache) Put(file *File) {
-	record := CacheRecord{Size: file.Size, Hash: file.Md5}
+func (c *FileCache) Put(file *File) {
+	record := CacheRecord{Size: file.Size, Hash: file.Hash}
 	data, _ := json.Marshal(record)
 	_ = c.db.Put([]byte(file.Path), data)
 }
 
-func (c *MD5Cache) List(filters []string) []string {
+func (c *FileCache) List(filters []string) []string {
 	compare := len(filters) != 0
 	keys := []string{}
 
@@ -80,7 +80,7 @@ func (c *MD5Cache) List(filters []string) []string {
 	return keys
 }
 
-func (c *MD5Cache) Delete(files []string) {
+func (c *FileCache) Delete(files []string) {
 	for _, file := range files {
 		key := []byte(file)
 		data, _ := c.db.Get(key)
@@ -90,6 +90,6 @@ func (c *MD5Cache) Delete(files []string) {
 	}
 }
 
-func (c *MD5Cache) Count() uint32 {
+func (c *FileCache) Count() uint32 {
 	return c.db.Count()
 }

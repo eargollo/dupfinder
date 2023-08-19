@@ -39,10 +39,10 @@ func New(opts ...DedupOption) (*Dedup, error) {
 }
 
 func (d *Dedup) Run() [][]*File {
-	var cache *MD5Cache
+	var cache *FileCache
 	if d.cachePath != "" {
 		var err error
-		cache, err = NewMD5Cache(d.cachePath)
+		cache, err = NewFileCache(d.cachePath)
 		if err != nil {
 			log.Printf("error: could not initialize cache: %v", err)
 		} else {
@@ -170,7 +170,7 @@ func (d *Dedup) pop() *File {
 	return heap.Pop(&d.pq).(*File)
 }
 
-func (d *Dedup) validateNext(cache *MD5Cache) bool {
+func (d *Dedup) validateNext(cache *FileCache) bool {
 	file := d.pop()
 	d.current = file
 
@@ -187,7 +187,7 @@ func (d *Dedup) validateNext(cache *MD5Cache) bool {
 	}
 
 	// There is a file with the same size, compare MD5s
-	fileHash, err := file.MD5(cache)
+	fileHash, err := file.CryptoHash(cache)
 	if err != nil {
 		log.Printf("Error: Could not calculate MD5 for '%s': %v", file.AbsPath(), err)
 		return true
@@ -195,7 +195,7 @@ func (d *Dedup) validateNext(cache *MD5Cache) bool {
 
 	for _, comp := range fByS {
 		// compare md5 with existing files with the same size
-		compHash, err := comp.MD5(cache)
+		compHash, err := comp.CryptoHash(cache)
 		if err != nil {
 			log.Printf("Error: Could not calculate MD5 for '%s': %v", comp.AbsPath(), err)
 			continue

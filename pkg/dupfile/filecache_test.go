@@ -20,7 +20,7 @@ func TestNewMD5Cache(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewMD5Cache(tt.args.file)
+			got, err := NewFileCache(tt.args.file)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewMD5Cache() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -33,14 +33,14 @@ func TestNewMD5Cache(t *testing.T) {
 }
 
 func TestCache(t *testing.T) {
-	c, err := NewMD5Cache(t.TempDir())
+	c, err := NewFileCache(t.TempDir())
 	if err != nil {
 		t.Fatalf("Could not create cache: %v", err)
 	}
 	defer c.Close()
 
-	aFile := &File{Path: "/my/file", Name: "file", Size: 100, Md5: []byte("abc")}
-	bFile := &File{Path: "/my/other/file", Name: "file", Size: 200, Md5: []byte("efg")}
+	aFile := &File{Path: "/my/file", Name: "file", Size: 100, Hash: []byte("abc")}
+	bFile := &File{Path: "/my/other/file", Name: "file", Size: 200, Hash: []byte("efg")}
 	c.Put(aFile)
 	c.Put(bFile)
 
@@ -50,12 +50,12 @@ func TestCache(t *testing.T) {
 	}
 
 	res = c.Get("/my/file", 100)
-	if !reflect.DeepEqual(res, aFile.Md5) {
+	if !reflect.DeepEqual(res, aFile.Hash) {
 		t.Errorf("Get() = %v, want %v", res, aFile)
 	}
 
 	res = c.Get("/my/other/file", 200)
-	if !reflect.DeepEqual(res, bFile.Md5) {
+	if !reflect.DeepEqual(res, bFile.Hash) {
 		t.Errorf("Get() = %v, want %v", res, bFile)
 	}
 
@@ -79,7 +79,7 @@ func TestMD5Cache_List(t *testing.T) {
 		"/b/two/one",
 		"/b/two/two",
 	}
-	c, err := NewMD5Cache(t.TempDir())
+	c, err := NewFileCache(t.TempDir())
 	if err != nil {
 		t.Fatalf("Could not create cache: %v", err)
 	}
@@ -120,7 +120,7 @@ func TestMD5Cache_Delete(t *testing.T) {
 		"/b/two/one",
 		"/b/two/two",
 	}
-	c, err := NewMD5Cache(t.TempDir())
+	c, err := NewFileCache(t.TempDir())
 	if err != nil {
 		t.Fatalf("Could not create cache: %v", err)
 	}
