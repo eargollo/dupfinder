@@ -28,7 +28,7 @@ func NewMD5Cache(file string) (*MD5Cache, error) {
 }
 
 func (c *MD5Cache) Close() {
-	c.db.Close()
+	_ = c.db.Close()
 }
 
 func (c *MD5Cache) Get(path string, size int64) []byte {
@@ -43,7 +43,7 @@ func (c *MD5Cache) Get(path string, size int64) []byte {
 		return nil
 	}
 	if record.Size != size {
-		c.db.Delete([]byte(path))
+		_ = c.db.Delete([]byte(path))
 		return nil
 	}
 	return record.Hash
@@ -85,7 +85,7 @@ func (c *MD5Cache) Delete(files []string) {
 		key := []byte(file)
 		data, _ := c.db.Get(key)
 		if data != nil {
-			c.db.Delete(key)
+			_ = c.db.Delete(key)
 		}
 	}
 }

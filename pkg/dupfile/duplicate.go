@@ -94,10 +94,10 @@ func (d *Dedup) Run() [][]*File {
 		for {
 			select {
 			case <-finished:
-				log.Printf("Processed %d files in %s time", d.checkedFiles, time.Now().Sub(start))
+				log.Printf("Processed %d files in %s time", d.checkedFiles, time.Since(start))
 				return
 			default:
-				if time.Now().Sub(last) > (10 * time.Second) {
+				if time.Since(last) > (10 * time.Second) {
 					last = time.Now()
 					total := d.addedFiles
 					count := d.checkedFiles
