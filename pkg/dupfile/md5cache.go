@@ -89,3 +89,7 @@ func (c *MD5Cache) Delete(files []string) {
 		}
 	}
 }
+
+func (c *MD5Cache) Count() uint32 {
+	return c.db.Count()
+}

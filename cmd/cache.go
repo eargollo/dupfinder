@@ -17,9 +17,11 @@ package cmd
 
 import (
 	"log"
+	"sort"
+	"strings"
 
-	"github.com/akrylysov/pogreb"
 	"github.com/eargollo/dupfinder/internal/dupfinder"
+	"github.com/eargollo/dupfinder/pkg/dupfile"
 	"github.com/spf13/cobra"
 )
 
@@ -42,19 +44,53 @@ For example:
 		if err != nil {
 			log.Fatalf("could not execute: %v", err)
 		}
-		log.Print(cachePath)
-		db, err := pogreb.Open(cachePath, nil)
+
+		db, err := dupfile.NewMD5Cache(cachePath)
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer db.Close()
+
 		log.Printf("Cache DB path %s", cachePath)
 		log.Printf("Cache has %d items", db.Count())
+
+		verbose, err := cmd.Flags().GetBool("verbose")
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+		if verbose {
+			list := db.List([]string{})
+			logList(list)
+		}
+
+		clean, err := cmd.Flags().GetBool("clean")
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+		if clean {
+			if len(args) == 0 {
+				log.Printf("Add prefix to be cleaned as argument. To clean all run 'dupfinder cache clean /'")
+				return
+			}
+			log.Printf("Cleaning cache with prefixes %s", strings.Join(args, ","))
+
+			total := db.Count()
+			toDelete := db.List(args)
+			if verbose {
+				log.Printf("Deleting %d items", len(toDelete))
+				logList(toDelete)
+			}
+			db.Delete(toDelete)
+			after := db.Count()
+			log.Printf("Cleaning completed: %d items cleaned (from %d to %d remaining)", total-after, total, after)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(cacheCmd)
+	cacheCmd.PersistentFlags().Bool("clean", false, "Clean files cache")
+	cacheCmd.PersistentFlags().Bool("verbose", false, "Verbose mode, showing cache items")
 
 	// Here you will define your flags and configuration settings.
 
@@ -65,4 +101,11 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// cacheCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func logList(list []string) {
+	sort.StringSlice.Sort(list)
+	for _, key := range list {
+		log.Printf(key)
+	}
 }
