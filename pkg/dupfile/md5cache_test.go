@@ -37,6 +37,7 @@ func TestCache(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Could not create cache: %v", err)
 	}
+	defer c.Close()
 
 	aFile := &File{Path: "/my/file", Name: "file", Size: 100, Md5: []byte("abc")}
 	bFile := &File{Path: "/my/other/file", Name: "file", Size: 200, Md5: []byte("efg")}
@@ -66,5 +67,79 @@ func TestCache(t *testing.T) {
 	res = c.Get("/my/file", 100)
 	if res != nil {
 		t.Error("should get nil after a mismatch")
+	}
+}
+
+func TestMD5Cache_List(t *testing.T) {
+	seed := []string{
+		"/a/one",
+		"/a/two",
+		"/a/three",
+		"/b/one",
+		"/b/two/one",
+		"/b/two/two",
+	}
+	c, err := NewMD5Cache(t.TempDir())
+	if err != nil {
+		t.Fatalf("Could not create cache: %v", err)
+	}
+	defer c.Close()
+
+	// Add records
+	for _, name := range seed {
+		c.Put(&File{Path: name})
+	}
+
+	tests := []struct {
+		name  string
+		paths []string
+		want  []string
+	}{
+		{name: "All no parameter", paths: []string{}, want: seed},
+		{name: "All explicit", paths: []string{"/"}, want: seed},
+		{name: "Filter single path", paths: []string{"/b"}, want: seed[3:]},
+		{name: "No match", paths: []string{"b"}, want: []string{}},
+		{name: "Or match", paths: []string{"/a/t", "/b/o"}, want: seed[1:4]},
+		{name: "Or match no duplicate", paths: []string{"/a/t", "/a/t"}, want: seed[1:3]},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := c.List(tt.paths); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MD5Cache.List() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMD5Cache_Delete(t *testing.T) {
+	seed := []string{
+		"/a/one",
+		"/a/two",
+		"/a/three",
+		"/b/one",
+		"/b/two/one",
+		"/b/two/two",
+	}
+	c, err := NewMD5Cache(t.TempDir())
+	if err != nil {
+		t.Fatalf("Could not create cache: %v", err)
+	}
+	defer c.Close()
+
+	// Add records
+	for _, name := range seed {
+		c.Put(&File{Path: name})
+	}
+
+	c.Delete([]string{})
+	res := c.List([]string{})
+	if !reflect.DeepEqual(res, seed) {
+		t.Errorf("MD5Cache.Delete() = %v, want %v", res, seed)
+	}
+
+	c.Delete([]string{"/a", "/a/one", "/b/two/two"})
+	res = c.List([]string{})
+	if !reflect.DeepEqual(res, seed[1:5]) {
+		t.Errorf("MD5Cache.Delete() = %v, want %v", res, seed[1:5])
 	}
 }

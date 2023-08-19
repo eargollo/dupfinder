@@ -3,7 +3,7 @@ package dupfile
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+	"strings"
 
 	"github.com/akrylysov/pogreb"
 )
@@ -55,10 +55,41 @@ func (c *MD5Cache) Put(file *File) {
 	_ = c.db.Put([]byte(file.Path), data)
 }
 
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
+func (c *MD5Cache) List(filters []string) []string {
+	compare := len(filters) != 0
+	keys := []string{}
+
+	iterator := c.db.Items()
+	k, _, err := iterator.Next()
+	for err == nil {
+		key := string(k)
+		if compare {
+			for _, filter := range filters {
+				if strings.HasPrefix(key, filter) {
+					keys = append(keys, key)
+					break
+				}
+			}
+		} else {
+			keys = append(keys, key)
+		}
+		// strings.HasPrefix(s, prefix)
+		k, _, err = iterator.Next()
 	}
-	return !info.IsDir()
+
+	return keys
+}
+
+func (c *MD5Cache) Delete(files []string) {
+	for _, file := range files {
+		key := []byte(file)
+		data, _ := c.db.Get(key)
+		if data != nil {
+			c.db.Delete(key)
+		}
+	}
+}
+
+func (c *MD5Cache) Count() uint32 {
+	return c.db.Count()
 }
