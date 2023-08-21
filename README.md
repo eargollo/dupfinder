@@ -4,20 +4,21 @@ Fast and simple command line tool, with caching capabilities, to find and clean 
 
 ## Usage
 
-Finding duplicated files at a path placing result at an output file:
+Finding duplicated files at a path. Results will be saved on `duplicates.txt`:
 ```
-dupfinder scan /path/to/scan > duplicates.txt
-```
-
-Finding duplicated files at multiple paths:
-```
-dupfinder scan /path/to/scan /another/path > duplicates.txt
+dupfinder scan /path/to/scan
 ```
 
-First execution might take a lot of time given files might need to be read. From second execution
-on, most file signatures will already be cached.
+Finding duplicated files at multiple paths. Results will be saved on `duplicates.txt`::
+```
+dupfinder scan /path/to/scan /another/path
+```
 
-The scan shows an execution log and comparisson is prioritized by file size.
+First execution might take quite some time given potential duplicate files need to be loaded
+for comparison. From second execution on, most file signatures will already be cached.
+
+The scan shows an execution log. Output file will have the list of duplicates sorted by
+the group size.
 
 ### Managing the cache
 

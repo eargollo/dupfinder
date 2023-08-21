@@ -49,7 +49,10 @@ dupfinder scan /first/folder  /another/folder
 
 		result := df.Run()
 
-		fmt.Fprintln(f, "Duplicates list by size:")
+		summary := dupfinder.Summary(result)
+		fmt.Fprintf(f, "Found %d duplicate groups with %d duplicated files taking %s of extra space:\n",
+			summary.Groups, summary.Duplicates, dupfile.ByteCountIEC(summary.Size),
+		)
 		for i, dup := range result {
 			fmt.Fprintf(f, "Duplicate %d Size %d Files %d MD5 %x\n", i, dup[0].Size, len(dup), dup[0].Hash)
 			for _, file := range dup {
