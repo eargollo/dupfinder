@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/eargollo/dupfinder/internal/dupfinder"
 	"github.com/eargollo/dupfinder/pkg/dupfile"
@@ -30,7 +31,7 @@ dupfinder scan /first/folder  /another/folder
 		//Create output file
 		filename := dupfinder.OutputFileName(output)
 		log.Printf("Creating output file '%s", filename)
-		f, err := os.Create(filename)
+		f, err := os.Create(filepath.Clean(filename))
 		if err != nil {
 			log.Fatalf("could not create output file '%s", err)
 		}
