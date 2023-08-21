@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/eargollo/dupfinder/pkg/dupfile"
 )
 
 func CachePath() (string, error) {
@@ -57,4 +59,21 @@ func OutputFileName(file string) string {
 	}
 
 	return fmt.Sprintf("%s_%d%s", base, max+1, extension)
+}
+
+type SummaryResult struct {
+	Duplicates int
+	Size       int64
+	Groups     int
+}
+
+func Summary(result [][]*dupfile.File) SummaryResult {
+	sum := SummaryResult{}
+	sum.Groups = len(result)
+	for _, dups := range result {
+		tot := len(dups)
+		sum.Duplicates += tot - 1
+		sum.Size += int64(tot-1) * dups[0].Size
+	}
+	return sum
 }
