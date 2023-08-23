@@ -133,7 +133,8 @@ func (d *Dedup) scanFolder(path string) {
 	log.Printf("Starting walk '%s'...", path)
 	err := filepath.Walk(path, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
-			log.Printf("Walk error: %v", err)
+			log.Printf("ERROR: Walk error: %v", err)
+			return nil
 		}
 		if info.IsDir() {
 			return nil

@@ -50,7 +50,7 @@ func (c *Cleaner) Load(content string) error {
 }
 
 func (c *Cleaner) readGroup(scanner *bufio.Scanner) (bool, error) {
-	rxGroup := regexp.MustCompile(`Duplicate (\d+) Size (\d+) Files (\d) MD5 (\w+)`)
+	rxGroup := regexp.MustCompile(`Duplicate (\d+) Size (\d+) Files (\d+) MD5 (\w+)`)
 
 	rxFile := regexp.MustCompile(`^\[([\w]?)\]\s+'(.+)'`)
 
