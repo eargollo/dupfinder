@@ -61,6 +61,19 @@ Duplicate 1 Size 9183 Files 4 MD5 8cb9641ad22300dbec61e0299116911a8275018afa35d9
 				{Group: 1, Filename: "/files/a/filec.avi", Type: Delete, To: ""},
 			},
 			wantErr: false},
+		{
+			name: "Bug #13",
+			content: `Found 29 duplicate groups with 84 duplicated files taking 5.0 MiB of extra space:
+Duplicate 0 Size 130677 Files 27 MD5 4dec5ec062e0e0aacd7adfe827c632120568c57cbdfa566040551003a14840d0
+[d]    '/files/a.jpg'
+[d]    '/files/b.jpg'
+[d]    '/files/c.jpg'`,
+			want: []Action{
+				{Group: 0, Filename: "/files/a.jpg", Type: Delete, To: ""},
+				{Group: 0, Filename: "/files/b.jpg", Type: Delete, To: ""},
+				{Group: 0, Filename: "/files/c.jpg", Type: Delete, To: ""},
+			},
+			wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
