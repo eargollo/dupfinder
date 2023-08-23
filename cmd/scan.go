@@ -56,7 +56,7 @@ dupfinder scan /first/folder  /another/folder
 		for i, dup := range result {
 			fmt.Fprintf(f, "Duplicate %d Size %d Files %d MD5 %x\n", i, dup[0].Size, len(dup), dup[0].Hash)
 			for _, file := range dup {
-				fmt.Fprintf(f, "    '%s'\n", file.Path)
+				fmt.Fprintf(f, "[]    '%s'\n", file.Path)
 			}
 		}
 	},
